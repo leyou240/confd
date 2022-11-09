@@ -642,7 +642,7 @@ func (c *SSM) CreateAssociationRequest(input *CreateAssociationInput) (req *requ
 //     TargetMap parameter isn't valid.
 //
 //   - InvalidTag
-//     The tag key or value isn't valid.
+//     The specified tag key or value isn't valid.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/CreateAssociation
 func (c *SSM) CreateAssociation(input *CreateAssociationInput) (*CreateAssociationOutput, error) {
@@ -12098,9 +12098,14 @@ func (c *SSM) ModifyDocumentPermissionRequest(input *ModifyDocumentPermissionInp
 //
 //   - DocumentPermissionLimit
 //     The document can't be shared with more Amazon Web Services user accounts.
-//     You can share a document with a maximum of 20 accounts. You can publicly
-//     share up to five documents. If you need to increase this limit, contact Amazon
-//     Web Services Support.
+//     You can specify a maximum of 20 accounts per API operation to share a private
+//     document.
+//
+//     By default, you can share a private document with a maximum of 1,000 accounts
+//     and publicly share up to five documents.
+//
+//     If you need to increase the quota for privately or publicly shared Systems
+//     Manager documents, contact Amazon Web Services Support.
 //
 //   - DocumentLimitExceeded
 //     You can have at most 500 active SSM documents.
@@ -21652,10 +21657,11 @@ type CreateAssociationInput struct {
 	// By default, all associations use AUTO mode.
 	SyncCompliance *string `type:"string" enum:"AssociationSyncCompliance"`
 
-	// Optional metadata that you assign to a resource. Tags enable you to categorize
-	// a resource in different ways, such as by purpose, owner, or environment.
-	// For example, you might want to tag an association to identify the type of
-	// resource to which it applies, the environment, or the purpose of the association.
+	// Adds or overwrites one or more tags for a State Manager association. Tags
+	// are metadata that you can assign to your Amazon Web Services resources. Tags
+	// enable you to categorize your resources in different ways, for example, by
+	// purpose, owner, or environment. Each tag consists of a key and an optional
+	// value, both of which you define.
 	Tags []*Tag `type:"list"`
 
 	// A location is a combination of Amazon Web Services Regions and Amazon Web
@@ -29873,9 +29879,14 @@ func (s *DocumentParameter) SetType(v string) *DocumentParameter {
 }
 
 // The document can't be shared with more Amazon Web Services user accounts.
-// You can share a document with a maximum of 20 accounts. You can publicly
-// share up to five documents. If you need to increase this limit, contact Amazon
-// Web Services Support.
+// You can specify a maximum of 20 accounts per API operation to share a private
+// document.
+//
+// By default, you can share a private document with a maximum of 1,000 accounts
+// and publicly share up to five documents.
+//
+// If you need to increase the quota for privately or publicly shared Systems
+// Manager documents, contact Amazon Web Services Support.
 type DocumentPermissionLimit struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -35477,14 +35488,26 @@ func (s *InstanceInformationFilter) SetValueSet(v []*string) *InstanceInformatio
 type InstanceInformationStringFilter struct {
 	_ struct{} `type:"structure"`
 
-	// The filter key name to describe your managed nodes. For example:
+	// The filter key name to describe your managed nodes.
 	//
-	// "InstanceIds" | "AgentVersion" | "PingStatus" | "PlatformTypes" | "ActivationIds"
-	// | "IamRole" | "ResourceType" | "AssociationStatus" | "tag-key" | "tag:{keyname}
+	// Valid filter key values: ActivationIds | AgentVersion | AssociationStatus
+	// | IamRole | InstanceIds | PingStatus | PlatformTypes | ResourceType | SourceIds
+	// | SourceTypes | "tag-key" | "tag:{keyname}
 	//
-	// Tag Key isn't a valid filter. You must specify either tag-key or tag:{keyname}
-	// and a string. Here are some valid examples: tag-key, tag:123, tag:al!, tag:Windows.
-	// Here are some invalid examples: tag-keys, Tag Key, tag:, tagKey, abc:keyname.
+	//    * Valid values for the AssociationStatus filter key: Success | Pending
+	//    | Failed
+	//
+	//    * Valid values for the PingStatus filter key: Online | ConnectionLost
+	//    | Inactive (deprecated)
+	//
+	//    * Valid values for the PlatformType filter key: Windows | Linux | MacOS
+	//
+	//    * Valid values for the ResourceType filter key: EC2Instance | ManagedInstance
+	//
+	//    * Valid values for the SourceType filter key: AWS::EC2::Instance | AWS::SSM::ManagedInstance
+	//    | AWS::IoT::Thing
+	//
+	//    * Valid tag examples: Key=tag-key,Values=Purpose | Key=tag:Purpose,Values=Test.
 	//
 	// Key is a required field
 	Key *string `min:"1" type:"string" required:"true"`
@@ -35559,11 +35582,10 @@ type InstancePatchState struct {
 	// BaselineId is a required field
 	BaselineId *string `min:"20" type:"string" required:"true"`
 
-	// The number of managed nodes where patches that are specified as Critical
-	// for compliance reporting in the patch baseline aren't installed. These patches
-	// might be missing, have failed installation, were rejected, or were installed
-	// but awaiting a required managed node reboot. The status of these managed
-	// nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as Critical for compliance
+	// reporting in the patch baseline aren't installed. These patches might be
+	// missing, have failed installation, were rejected, or were installed but awaiting
+	// a required managed node reboot. The status of these managed nodes is NON_COMPLIANT.
 	CriticalNonCompliantCount *int64 `type:"integer"`
 
 	// The number of patches from the patch baseline that were attempted to be installed
@@ -35640,9 +35662,9 @@ type InstancePatchState struct {
 	// OperationStartTime is a required field
 	OperationStartTime *time.Time `type:"timestamp" required:"true"`
 
-	// The number of managed nodes with patches installed that are specified as
-	// other than Critical or Security but aren't compliant with the patch baseline.
-	// The status of these managed nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as other than Critical
+	// or Security but aren't compliant with the patch baseline. The status of these
+	// managed nodes is NON_COMPLIANT.
 	OtherNonCompliantCount *int64 `type:"integer"`
 
 	// Placeholder information. This field will always be empty in the current release
@@ -35673,10 +35695,10 @@ type InstancePatchState struct {
 	//    until a reboot is performed.
 	RebootOption *string `type:"string" enum:"RebootOption"`
 
-	// The number of managed nodes where patches that are specified as Security
-	// in a patch advisory aren't installed. These patches might be missing, have
-	// failed installation, were rejected, or were installed but awaiting a required
-	// managed node reboot. The status of these managed nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as Security in a patch
+	// advisory aren't installed. These patches might be missing, have failed installation,
+	// were rejected, or were installed but awaiting a required managed node reboot.
+	// The status of these managed nodes is NON_COMPLIANT.
 	SecurityNonCompliantCount *int64 `type:"integer"`
 
 	// The ID of the patch baseline snapshot used during the patching operation
@@ -38871,7 +38893,7 @@ func (s *InvalidSchedule) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
-// The tag key or value isn't valid.
+// The specified tag key or value isn't valid.
 type InvalidTag struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -42387,7 +42409,7 @@ func (s *ListTagsForResourceOutput) SetTagList(v []*Tag) *ListTagsForResourceOut
 type LoggingInfo struct {
 	_ struct{} `type:"structure"`
 
-	// The name of an S3 bucket where execution logs are stored .
+	// The name of an S3 bucket where execution logs are stored.
 	//
 	// S3BucketName is a required field
 	S3BucketName *string `min:"3" type:"string" required:"true"`
@@ -54039,6 +54061,9 @@ type StepExecution struct {
 	// The timeout seconds of the step.
 	TimeoutSeconds *int64 `type:"long"`
 
+	// The CloudWatch alarms that were invoked by the automation.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
+
 	// Strategies used when step fails, we support Continue and Abort. Abort will
 	// fail the automation when the step fails. Continue will ignore the failure
 	// of current step and allow automation to run the next step. With conditional
@@ -54188,6 +54213,12 @@ func (s *StepExecution) SetTargets(v []*Target) *StepExecution {
 // SetTimeoutSeconds sets the TimeoutSeconds field's value.
 func (s *StepExecution) SetTimeoutSeconds(v int64) *StepExecution {
 	s.TimeoutSeconds = &v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *StepExecution) SetTriggeredAlarms(v []*AlarmStateInformation) *StepExecution {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -54668,6 +54699,10 @@ type TargetLocation struct {
 	// The Amazon Web Services Regions targeted by the current Automation execution.
 	Regions []*string `min:"1" type:"list"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	TargetLocationAlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The maximum number of Amazon Web Services Regions and Amazon Web Services
 	// accounts allowed to run the Automation concurrently.
 	TargetLocationMaxConcurrency *string `min:"1" type:"string"`
@@ -54713,6 +54748,11 @@ func (s *TargetLocation) Validate() error {
 	if s.TargetLocationMaxErrors != nil && len(*s.TargetLocationMaxErrors) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocationMaxErrors", 1))
 	}
+	if s.TargetLocationAlarmConfiguration != nil {
+		if err := s.TargetLocationAlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("TargetLocationAlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
@@ -54735,6 +54775,12 @@ func (s *TargetLocation) SetExecutionRoleName(v string) *TargetLocation {
 // SetRegions sets the Regions field's value.
 func (s *TargetLocation) SetRegions(v []*string) *TargetLocation {
 	s.Regions = v
+	return s
+}
+
+// SetTargetLocationAlarmConfiguration sets the TargetLocationAlarmConfiguration field's value.
+func (s *TargetLocation) SetTargetLocationAlarmConfiguration(v *AlarmConfiguration) *TargetLocation {
+	s.TargetLocationAlarmConfiguration = v
 	return s
 }
 
@@ -59882,6 +59928,9 @@ const (
 	// OperatingSystemAmazonLinux2 is a OperatingSystem enum value
 	OperatingSystemAmazonLinux2 = "AMAZON_LINUX_2"
 
+	// OperatingSystemAmazonLinux2022 is a OperatingSystem enum value
+	OperatingSystemAmazonLinux2022 = "AMAZON_LINUX_2022"
+
 	// OperatingSystemUbuntu is a OperatingSystem enum value
 	OperatingSystemUbuntu = "UBUNTU"
 
@@ -59916,6 +59965,7 @@ func OperatingSystem_Values() []string {
 		OperatingSystemWindows,
 		OperatingSystemAmazonLinux,
 		OperatingSystemAmazonLinux2,
+		OperatingSystemAmazonLinux2022,
 		OperatingSystemUbuntu,
 		OperatingSystemRedhatEnterpriseLinux,
 		OperatingSystemSuse,
