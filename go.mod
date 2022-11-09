@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.107
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/garyburd/redigo v1.6.4
-	github.com/hashicorp/consul/api v1.15.2
+	github.com/hashicorp/consul/api v1.15.3
 	github.com/hashicorp/vault/api v1.8.0
 	github.com/kelseyhightower/memkv v0.1.1
 	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414
