@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/aws/aws-sdk-go v1.44.107
-	github.com/fsnotify/fsnotify v1.5.4
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/garyburd/redigo v1.6.4
 	github.com/hashicorp/consul/api v1.15.2
 	github.com/hashicorp/vault/api v1.8.0
@@ -64,7 +64,7 @@ require (
 	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
+	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
