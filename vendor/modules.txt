@@ -184,9 +184,6 @@ github.com/jmespath/go-jmespath
 # github.com/kelseyhightower/memkv v0.1.1
 ## explicit
 github.com/kelseyhightower/memkv
-# github.com/konsorten/go-windows-terminal-sequences v1.0.3
-## explicit
-github.com/konsorten/go-windows-terminal-sequences
 # github.com/mattn/go-colorable v0.1.6
 ## explicit; go 1.13
 github.com/mattn/go-colorable
@@ -221,7 +218,7 @@ github.com/ryanuber/go-glob
 # github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414
 ## explicit
 github.com/samuel/go-zookeeper/zk
-# github.com/sirupsen/logrus v1.6.0
+# github.com/sirupsen/logrus v1.9.0
 ## explicit; go 1.13
 github.com/sirupsen/logrus
 # go.etcd.io/etcd/api/v3 v3.5.5
@@ -275,11 +272,12 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
+# golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8
 ## explicit; go 1.17
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
+golang.org/x/sys/windows
 # golang.org/x/text v0.3.7
 ## explicit; go 1.17
 golang.org/x/text/secure/bidirule
