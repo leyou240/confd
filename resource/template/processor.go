@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/kelseyhightower/confd/log"
-	util "github.com/kelseyhightower/confd/util"
+	"github.com/kelseyhightower/confd/util"
 )
 
 type Processor interface {
@@ -21,7 +21,7 @@ func Process(config Config) error {
 	return process(ts)
 }
 
-func process(ts []*TemplateResource) error {
+func process(ts []*Resource) error {
 	var lastErr error
 	for _, t := range ts {
 		if err := t.process(); err != nil {
@@ -52,7 +52,7 @@ func (p *intervalProcessor) Process() {
 			log.Fatal(err.Error())
 			break
 		}
-		process(ts)
+		_ = process(ts)
 		select {
 		case <-p.stopChan:
 			break
@@ -71,8 +71,8 @@ type watchProcessor struct {
 }
 
 func WatchProcessor(config Config, stopChan, doneChan chan bool, errChan chan error) Processor {
-	var wg sync.WaitGroup
-	return &watchProcessor{config, stopChan, doneChan, errChan, wg}
+	//var wg = sync.WaitGroup{}
+	return &watchProcessor{config: config, stopChan: stopChan, doneChan: doneChan, errChan: errChan, wg: sync.WaitGroup{}}
 }
 
 func (p *watchProcessor) Process() {
@@ -90,7 +90,7 @@ func (p *watchProcessor) Process() {
 	p.wg.Wait()
 }
 
-func (p *watchProcessor) monitorPrefix(t *TemplateResource) {
+func (p *watchProcessor) monitorPrefix(t *Resource) {
 	defer p.wg.Done()
 	keys := util.AppendPrefix(t.Prefix, t.Keys)
 	for {
@@ -108,9 +108,9 @@ func (p *watchProcessor) monitorPrefix(t *TemplateResource) {
 	}
 }
 
-func getTemplateResources(config Config) ([]*TemplateResource, error) {
+func getTemplateResources(config Config) ([]*Resource, error) {
 	var lastError error
-	templates := make([]*TemplateResource, 0)
+	templates := make([]*Resource, 0)
 	log.Debug("Loading template resources from confdir " + config.ConfDir)
 	if !util.IsFileExist(config.ConfDir) {
 		log.Warning(fmt.Sprintf("Cannot load template resources: confdir '%s' does not exist", config.ConfDir))

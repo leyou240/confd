@@ -22,7 +22,7 @@ func (n *Nodes) Set(node string) error {
 	return nil
 }
 
-// fileInfo describes a configuration file and is returned by fileStat.
+// FileInfo  describes a configuration file and is returned by fileStat.
 type FileInfo struct {
 	Uid  uint32
 	Gid  uint32
@@ -38,7 +38,7 @@ func AppendPrefix(prefix string, keys []string) []string {
 	return s
 }
 
-// isFileExist reports whether path exits.
+// IsFileExist  reports whether path exits.
 func IsFileExist(fpath string) bool {
 	if _, err := os.Stat(fpath); os.IsNotExist(err) {
 		return false
@@ -49,7 +49,7 @@ func IsFileExist(fpath string) bool {
 // IsConfigChanged reports whether src and dest config files are equal.
 // Two config files are equal when they have the same file contents and
 // Unix permissions. The owner, group, and mode must match.
-// It return false in other cases.
+// It will return false in other cases.
 func IsConfigChanged(src, dest string) (bool, error) {
 	if !IsFileExist(dest) {
 		return true, nil
@@ -69,7 +69,7 @@ func IsConfigChanged(src, dest string) (bool, error) {
 		log.Info(fmt.Sprintf("%s has GID %d should be %d", dest, d.Gid, s.Gid))
 	}
 	if d.Mode != s.Mode {
-		log.Info(fmt.Sprintf("%s has mode %s should be %s", dest, os.FileMode(d.Mode), os.FileMode(s.Mode)))
+		log.Info(fmt.Sprintf("%s has mode %s should be %s", dest, d.Mode, s.Mode))
 	}
 	if d.Md5 != s.Md5 {
 		log.Info(fmt.Sprintf("%s has md5sum %s should be %s", dest, d.Md5, s.Md5))

@@ -1,7 +1,6 @@
 package util
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -20,17 +19,18 @@ import (
 // │   ├── sub1.toml
 // │   └── sub12.toml
 // └── subDir2
-//       ├── sub2.other
-//       ├── sub2.toml
-//       ├── sub22.toml
-//       └── subSubDir
-//             ├── subsub.other
-//             ├── subsub.toml
-//             └── subsub2.toml
+//
+//	├── sub2.other
+//	├── sub2.toml
+//	├── sub22.toml
+//	└── subSubDir
+//	      ├── subsub.other
+//	      ├── subsub.toml
+//	      └── subsub2.toml
 func createDirStructure() (rootDir string, err error) {
 	mod := os.FileMode(0755)
 	flag := os.O_RDWR | os.O_CREATE | os.O_EXCL
-	rootDir, err = ioutil.TempDir("", "")
+	rootDir, err = os.MkdirTemp("", "")
 	if err != nil {
 		return "", err
 	}
@@ -127,7 +127,7 @@ func TestRecursiveFilesLookup(t *testing.T) {
 
 func TestIsConfigChangedTrue(t *testing.T) {
 	log.SetLevel("warn")
-	src, err := ioutil.TempFile("", "src")
+	src, err := os.CreateTemp("", "src")
 	defer os.Remove(src.Name())
 	if err != nil {
 		t.Errorf(err.Error())
@@ -136,7 +136,7 @@ func TestIsConfigChangedTrue(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	dest, err := ioutil.TempFile("", "dest")
+	dest, err := os.CreateTemp("", "dest")
 	defer os.Remove(dest.Name())
 	if err != nil {
 		t.Errorf(err.Error())
@@ -156,7 +156,7 @@ func TestIsConfigChangedTrue(t *testing.T) {
 
 func TestIsConfigChangedFalse(t *testing.T) {
 	log.SetLevel("warn")
-	src, err := ioutil.TempFile("", "src")
+	src, err := os.CreateTemp("", "src")
 	defer os.Remove(src.Name())
 	if err != nil {
 		t.Errorf(err.Error())
@@ -165,7 +165,7 @@ func TestIsConfigChangedFalse(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	dest, err := ioutil.TempFile("", "dest")
+	dest, err := os.CreateTemp("", "dest")
 	defer os.Remove(dest.Name())
 	if err != nil {
 		t.Errorf(err.Error())

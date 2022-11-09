@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"github.com/BurntSushi/toml"
 	"os"
 	"os/exec"
 	"path"
@@ -14,10 +14,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/BurntSushi/toml"
 	"github.com/kelseyhightower/confd/backends"
 	"github.com/kelseyhightower/confd/log"
-	util "github.com/kelseyhightower/confd/util"
+	"github.com/kelseyhightower/confd/util"
 	"github.com/kelseyhightower/memkv"
 )
 
@@ -32,13 +31,13 @@ type Config struct {
 	TemplateDir   string
 }
 
-// TemplateResourceConfig holds the parsed template resource.
-type TemplateResourceConfig struct {
-	TemplateResource TemplateResource `toml:"template"`
+// ResourceConfig TemplateResourceConfig holds the parsed template resource.
+type ResourceConfig struct {
+	TemplateResource Resource `toml:"template"`
 }
 
-// TemplateResource is the representation of a parsed template resource.
-type TemplateResource struct {
+// Resource TemplateResource is the representation of a parsed template resource.
+type Resource struct {
 	CheckCmd      string `toml:"check_cmd"`
 	Dest          string
 	FileMode      os.FileMode
@@ -63,19 +62,19 @@ type TemplateResource struct {
 var ErrEmptySrc = errors.New("empty src template")
 
 // NewTemplateResource creates a TemplateResource.
-func NewTemplateResource(path string, config Config) (*TemplateResource, error) {
+func NewTemplateResource(path string, config Config) (*Resource, error) {
 	if config.StoreClient == nil {
-		return nil, errors.New("A valid StoreClient is required.")
+		return nil, errors.New("a valid StoreClient is required")
 	}
 
-	// Set the default uid and gid so we can determine if it was
+	// Set the default uid and gid, so we can determine if it was
 	// unset from configuration.
-	tc := &TemplateResourceConfig{TemplateResource{Uid: -1, Gid: -1}}
+	tc := &ResourceConfig{Resource{Uid: -1, Gid: -1}}
 
 	log.Debug("Loading template resource from " + path)
 	_, err := toml.DecodeFile(path, &tc)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot process template resource %s - %s", path, err.Error())
+		return nil, fmt.Errorf("cannot process template resource %s - %s", path, err.Error())
 	}
 
 	tr := tc.TemplateResource
@@ -112,7 +111,7 @@ func NewTemplateResource(path string, config Config) (*TemplateResource, error) 
 }
 
 // setVars sets the Vars for template resource.
-func (t *TemplateResource) setVars() error {
+func (t *Resource) setVars() error {
 	var err error
 	log.Debug("Retrieving keys from store")
 	log.Debug("Key prefix set to " + t.Prefix)
@@ -135,7 +134,7 @@ func (t *TemplateResource) setVars() error {
 // template and setting the desired owner, group, and mode. It also sets the
 // StageFile for the template resource.
 // It returns an error if any.
-func (t *TemplateResource) createStageFile() error {
+func (t *Resource) createStageFile() error {
 	log.Debug("Using source template " + t.Src)
 
 	if !util.IsFileExist(t.Src) {
@@ -146,11 +145,11 @@ func (t *TemplateResource) createStageFile() error {
 
 	tmpl, err := template.New(filepath.Base(t.Src)).Funcs(t.funcMap).ParseFiles(t.Src)
 	if err != nil {
-		return fmt.Errorf("Unable to process template %s, %s", t.Src, err)
+		return fmt.Errorf("unable to process template %s, %s", t.Src, err)
 	}
 
 	// create TempFile in Dest directory to avoid cross-filesystem issues
-	temp, err := ioutil.TempFile(filepath.Dir(t.Dest), "."+filepath.Base(t.Dest))
+	temp, err := os.CreateTemp(filepath.Dir(t.Dest), "."+filepath.Base(t.Dest))
 	if err != nil {
 		return err
 	}
@@ -175,7 +174,7 @@ func (t *TemplateResource) createStageFile() error {
 // overwriting the target config file. Finally, sync will run a reload command
 // if set to have the application or service pick up the changes.
 // It returns an error if any.
-func (t *TemplateResource) sync() error {
+func (t *Resource) sync() error {
 	staged := t.StageFile.Name()
 	if t.keepStageFile {
 		log.Info("Keeping staged file: " + staged)
@@ -207,11 +206,11 @@ func (t *TemplateResource) sync() error {
 				// try to open the file and write to it
 				var contents []byte
 				var rerr error
-				contents, rerr = ioutil.ReadFile(staged)
+				contents, rerr = os.ReadFile(staged)
 				if rerr != nil {
 					return rerr
 				}
-				err := ioutil.WriteFile(t.Dest, contents, t.FileMode)
+				err := os.WriteFile(t.Dest, contents, t.FileMode)
 				// make sure owner and group match the temp file, in case the file was created with WriteFile
 				os.Chown(t.Dest, t.Uid, t.Gid)
 				if err != nil {
@@ -239,7 +238,7 @@ func (t *TemplateResource) sync() error {
 // check to be run on the staged file before overwriting the destination config
 // file.
 // It returns nil if the check command returns 0 and there are no other errors.
-func (t *TemplateResource) check() error {
+func (t *Resource) check() error {
 	var cmdBuffer bytes.Buffer
 	data := make(map[string]string)
 	data["src"] = t.StageFile.Name()
@@ -255,7 +254,7 @@ func (t *TemplateResource) check() error {
 
 // reload executes the reload command.
 // It returns nil if the reload command returns 0.
-func (t *TemplateResource) reload() error {
+func (t *Resource) reload() error {
 	return runCommand(t.ReloadCmd)
 }
 
@@ -286,7 +285,7 @@ func runCommand(cmd string) error {
 // from the store, then we stage a candidate configuration file, and finally sync
 // things up.
 // It returns an error if any.
-func (t *TemplateResource) process() error {
+func (t *Resource) process() error {
 	if err := t.setFileMode(); err != nil {
 		return err
 	}
@@ -303,7 +302,7 @@ func (t *TemplateResource) process() error {
 }
 
 // setFileMode sets the FileMode.
-func (t *TemplateResource) setFileMode() error {
+func (t *Resource) setFileMode() error {
 	if t.Mode == "" {
 		if !util.IsFileExist(t.Dest) {
 			t.FileMode = 0644

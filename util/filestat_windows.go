@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-// filestat return a FileInfo describing the named file.
+// FileStat filestat return a FileInfo describing the named file.
 func FileStat(name string) (fi FileInfo, err error) {
 	if IsFileExist(name) {
 		f, err := os.Open(name)
@@ -23,5 +23,5 @@ func FileStat(name string) (fi FileInfo, err error) {
 		fi.Md5 = fmt.Sprintf("%x", h.Sum(nil))
 		return fi, nil
 	}
-	return fi, errors.New("File not found")
+	return fi, errors.New("file not found")
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-// A watch only tells the latest revision
+// Watch A watch only tells the latest revision
 type Watch struct {
 	// Last seen revision
 	revision int64
@@ -23,7 +23,7 @@ type Watch struct {
 	rwl sync.RWMutex
 }
 
-// Wait until revision is greater than lastRevision
+// WaitNext Wait until revision is greater than lastRevision
 func (w *Watch) WaitNext(ctx context.Context, lastRevision int64, notify chan<- int64) {
 	for {
 		w.rwl.RLock()
@@ -123,7 +123,7 @@ func NewEtcdClient(machines []string, cert, key, caCert string, basicAuth bool, 
 	}
 
 	if caCert != "" {
-		certBytes, err := ioutil.ReadFile(caCert)
+		certBytes, err := os.ReadFile(caCert)
 		if err != nil {
 			return &Client{}, err
 		}
@@ -161,7 +161,7 @@ func NewEtcdClient(machines []string, cert, key, caCert string, basicAuth bool, 
 // GetValues queries etcd for keys prefixed by prefix.
 func (c *Client) GetValues(keys []string) (map[string]string, error) {
 	// Use all operations on the same revision
-	var first_rev int64 = 0
+	var firstRev int64 = 0
 	vars := make(map[string]string)
 	// Default ETCDv3 TXN limitation. Since it is configurable from v3.3,
 	// maybe an option should be added (also set max-txn=0 can disable Txn?)
@@ -177,7 +177,7 @@ func (c *Client) GetValues(keys []string) (map[string]string, error) {
 			txnOps = append(txnOps, clientv3.OpGet(k,
 				clientv3.WithPrefix(),
 				clientv3.WithSort(clientv3.SortByKey, clientv3.SortDescend),
-				clientv3.WithRev(first_rev)))
+				clientv3.WithRev(firstRev)))
 		}
 
 		result, err := c.client.Txn(ctx).Then(txnOps...).Commit()
@@ -198,9 +198,9 @@ func (c *Client) GetValues(keys []string) (map[string]string, error) {
 				}
 			}
 		}
-		if first_rev == 0 {
+		if firstRev == 0 {
 			// Save the revison of the first request
-			first_rev = result.Header.GetRevision()
+			firstRev = result.Header.GetRevision()
 		}
 		return nil
 	}

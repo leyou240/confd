@@ -2,18 +2,18 @@ package file
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 	"strconv"
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/kelseyhightower/confd/log"
-	util "github.com/kelseyhightower/confd/util"
-	"gopkg.in/yaml.v2"
+	"github.com/kelseyhightower/confd/util"
+	"gopkg.in/yaml.v3"
 )
 
-var replacer = strings.NewReplacer("/", "_")
+//var replacer = strings.NewReplacer("/", "_")
 
 // Client provides a shell for the yaml client
 type Client struct {
@@ -32,7 +32,7 @@ func NewFileClient(filepath []string, filter string) (*Client, error) {
 
 func readFile(path string, vars map[string]string) error {
 	yamlMap := make(map[interface{}]interface{})
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -52,23 +52,23 @@ func readFile(path string, vars map[string]string) error {
 func (c *Client) GetValues(keys []string) (map[string]string, error) {
 	vars := make(map[string]string)
 	var filePaths []string
-	for _, path := range c.filepath {
-		p, err := util.RecursiveFilesLookup(path, c.filter)
+	for _, p := range c.filepath {
+		p, err := util.RecursiveFilesLookup(p, c.filter)
 		if err != nil {
 			return nil, err
 		}
 		filePaths = append(filePaths, p...)
 	}
 
-	for _, path := range filePaths {
-		err := readFile(path, vars)
+	for _, p := range filePaths {
+		err := readFile(p, vars)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 VarsLoop:
-	for k, _ := range vars {
+	for k := range vars {
 		for _, key := range keys {
 			if strings.HasPrefix(k, key) {
 				continue VarsLoop
@@ -138,13 +138,13 @@ func (c *Client) WatchPrefix(prefix string, keys []string, waitIndex uint64, sto
 		return 0, err
 	}
 	defer watcher.Close()
-	for _, path := range c.filepath {
-		isDir, err := util.IsDirectory(path)
+	for _, p := range c.filepath {
+		isDir, err := util.IsDirectory(p)
 		if err != nil {
 			return 0, err
 		}
 		if isDir {
-			dirs, err := util.RecursiveDirsLookup(path, "*")
+			dirs, err := util.RecursiveDirsLookup(p, "*")
 			if err != nil {
 				return 0, err
 			}
@@ -155,7 +155,7 @@ func (c *Client) WatchPrefix(prefix string, keys []string, waitIndex uint64, sto
 				}
 			}
 		} else {
-			err = watcher.Add(path)
+			err = watcher.Add(p)
 			if err != nil {
 				return 0, err
 			}
