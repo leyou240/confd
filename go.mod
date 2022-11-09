@@ -3,7 +3,7 @@ module github.com/kelseyhightower/confd
 go 1.19
 
 require (
-	github.com/BurntSushi/toml v0.3.1
+	github.com/BurntSushi/toml v1.2.1
 	github.com/aws/aws-sdk-go v1.44.107
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/garyburd/redigo v1.6.4
