@@ -6,11 +6,11 @@ import (
 	"crypto/x509"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kelseyhightower/confd/log"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"sync"
 )
 
 // Watch A watch only tells the latest revision
