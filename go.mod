@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/fsnotify/fsnotify v1.6.0
-	github.com/hashicorp/consul/api v1.19.1
+	github.com/hashicorp/consul/api v1.20.0
 	github.com/kelseyhightower/memkv v0.1.1
 	github.com/sirupsen/logrus v1.9.0
 	go.etcd.io/etcd/client/v3 v3.5.7
