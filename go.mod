@@ -3,7 +3,7 @@ module github.com/kelseyhightower/confd
 go 1.19
 
 require (
-	github.com/BurntSushi/toml v1.3.1
+	github.com/BurntSushi/toml v1.3.2
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/hashicorp/consul/api v1.21.0
 	github.com/kelseyhightower/memkv v0.1.1
