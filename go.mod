@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/consul/api v1.34.4
 	github.com/kelseyhightower/memkv v0.1.1
 	github.com/sirupsen/logrus v1.9.4
-	go.etcd.io/etcd/client/v3 v3.7.0
+	go.etcd.io/etcd/client/v3 v3.7.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -32,8 +32,8 @@ require (
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	go.etcd.io/etcd/api/v3 v3.7.0 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.7.0 // indirect
+	go.etcd.io/etcd/api/v3 v3.7.1 // indirect
+	go.etcd.io/etcd/client/pkg/v3 v3.7.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
@@ -42,6 +42,6 @@ require (
 	golang.org/x/text v0.38.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260414002931-afd174a4e478 // indirect
-	google.golang.org/grpc v1.81.0 // indirect
+	google.golang.org/grpc v1.82.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
