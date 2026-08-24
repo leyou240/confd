@@ -7,7 +7,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/hashicorp/consul/api v1.34.4
 	github.com/kelseyhightower/memkv v0.1.1
-	github.com/sirupsen/logrus v1.10.0
+	github.com/sirupsen/logrus v1.10.1
 	go.etcd.io/etcd/client/v3 v3.7.1
 	gopkg.in/yaml.v3 v3.0.1
 )
